@@ -5,15 +5,15 @@ import com.space.model.Ship;
 import java.util.List;
 
 public interface ShipService {
-    public Ship create(Ship ship);
+    Ship create(Ship ship);
 
-    public Boolean delete(Long id);
+    void delete(Long id);
 
-    public List<Ship> getAll();
+    List<Ship> getAll();
 
-    public Integer getCount();
+    Long getCount();
 
-    public Ship get(Long id);
+    Ship get(Long id);
 
-    public Ship update(Ship ship);
+    Ship update(Ship ship);
 }

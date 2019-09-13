@@ -5,7 +5,6 @@ import com.space.repository.ShipRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -23,12 +22,12 @@ public class ShipServiceImpl implements ShipService {
     @Override
     @org.springframework.transaction.annotation.Transactional
     public Ship create(Ship ship) {
-        return shipRepository.create(ship);
+        return shipRepository.save(ship);
     }
 
     @Override
-    public Boolean delete(Long id) {
-        return shipRepository.delete(id);
+    public void delete(Long id) throws IllegalArgumentException{
+        shipRepository.deleteById(id);
     }
 
     @Override
@@ -37,18 +36,18 @@ public class ShipServiceImpl implements ShipService {
     }
 
     @Override
-    public Integer getCount() {
-        return shipRepository.getCount();
+    public Long getCount() {
+        return shipRepository.count();
     }
 
     @Override
     public Ship get(Long id) {
-        return shipRepository.getShipById(id);
+        return shipRepository.getById(id);
     }
 
     @Override
     @org.springframework.transaction.annotation.Transactional
     public Ship update(Ship ship) {
-        return shipRepository.update(ship);
+        return shipRepository.save(ship);
     }
 }
