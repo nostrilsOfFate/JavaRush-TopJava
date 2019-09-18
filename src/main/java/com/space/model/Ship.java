@@ -2,17 +2,21 @@ package com.space.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
 @Entity
-@Table(name = "cosmoport.ship")
+@Table(name = "ship")
+@ToString
 public class Ship {
 
     //TODO валидность айди, где ее определять
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,6 +30,7 @@ public class Ship {
     private String planet;
 
     @Column(name = "shipType")
+    @Enumerated(EnumType.STRING)
     private ShipType shipType;
 
     @Column(name = "prodDate")
@@ -35,7 +40,7 @@ public class Ship {
     private Boolean isUsed = false;
 
     @Column(name = "speed")
-    private double speed; //0.01-0.99 исп математич округление до сотых
+    private Double speed; //0.01-0.99 исп математич округление до сотых
 
     @Column(name = "crewSize")
     private Integer crewSize;
@@ -43,11 +48,9 @@ public class Ship {
     @Column(name = "rating")
     private Double rating;// исп математич округление до сотых
 
-    public Ship() {
+    public Ship() {}
 
-    }
-
-    public Ship(String name, String planet, ShipType shipType, Date prodDate, Boolean isUsed, double speed, Integer crewSize) {
+    public Ship(String name, String planet, ShipType shipType, Date prodDate, Boolean isUsed, Double speed, Integer crewSize) {
         this.name = name;
         this.planet = planet;
         this.shipType = shipType;
@@ -86,7 +89,7 @@ public class Ship {
     }
 
     public void setShipType(ShipType shipType) {
-        this.shipType = shipType;
+        this.shipType = shipType; //ShipType.valueOf(shipType);
     }
 
     public Date getProdDate() {
@@ -94,7 +97,15 @@ public class Ship {
     }
 
     public void setProdDate(Date prodDate) {
-        this.prodDate = prodDate;
+//        try {
+//            Date d =  new SimpleDateFormat("yyyy-MM-dd").parse("2800-01-01");
+//            if ((prodDate<d)||())
+//                this.prodDate = prodDate;
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+        // ограничение, т 2800 до текущего 3019
+
     }
 
     public Boolean getUsed() {
@@ -105,13 +116,13 @@ public class Ship {
         isUsed = used;
     }
 
-    public double getSpeed() {
+    public Double getSpeed() {
         return speed;
     }
 
-    public void setSpeed(double speed) {
+    public void setSpeed(Double speed) {
         double roundOff = Math.round(speed * 100.0) / 100.0;
-        if ((roundOff < 0.01) | (roundOff > 0.99)) {
+        if ((roundOff > 0.01) && (roundOff < 0.99)) {
             this.speed = roundOff;
         } else {
             System.out.println("Invalid speed range  of ship (0.01-0.99), try again");
@@ -123,7 +134,7 @@ public class Ship {
     }
 
     public void setCrewSize(Integer crewSize) {//1..9999
-        if ((crewSize >= 1) | (crewSize <= 9999)) {
+        if ((crewSize >= 1) && (crewSize <= 9999)) {
             this.crewSize = crewSize;
         } else {
             System.out.println("Invalid CrewSize of ship (not 1..9999), try again");
@@ -132,11 +143,16 @@ public class Ship {
     }
 
     public Double getRating() {
-        return rating;
+        int thisYear = 3019;
+        int yearOfBorn = this.getProdDate().getYear();
+        double a =(this.getUsed()) ? 0.5 : 1;
+        Double rating = (80 * this.getSpeed()*a)/(thisYear-yearOfBorn+1);
+        Double roundOff = Math.round(rating * 100.0) / 100.0;
+        return roundOff;
     }
 
     public void setRating(Double rating) {
-        double roundOff = Math.round(rating * 100.0) / 100.0;
-        this.rating = roundOff;
+        this.rating = rating;
     }
+
 }

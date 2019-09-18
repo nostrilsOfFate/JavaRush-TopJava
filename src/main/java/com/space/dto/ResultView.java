@@ -9,15 +9,14 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResultView {
     @NonNull
     private HttpStatus code;
-
-
     private String systemMessage;
-    private List<String> invalidInputs;
-    private String userMessageTitle;
-    private String userMessageText;
+
+    public ResultView(HttpStatus code){
+        this.code = code;
+    }
 }

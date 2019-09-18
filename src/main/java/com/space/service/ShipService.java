@@ -1,6 +1,7 @@
 package com.space.service;
 
 import com.space.model.Ship;
+import com.space.model.ViewShipFilter;
 
 import java.util.List;
 
@@ -9,7 +10,7 @@ public interface ShipService {
 
     void delete(Long id);
 
-    List<Ship> getAll();
+    List<Ship> getAll(ViewShipFilter filter);
 
     Long getCount();
 

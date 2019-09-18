@@ -23,6 +23,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -73,6 +74,7 @@ public class GetShipTest {
                 .andExpect(status().isOk());
 
         String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
+
         ObjectMapper mapper = new ObjectMapper();
         ShipInfoTest actual = mapper.readValue(contentAsString, ShipInfoTest.class);
         assertTrue("Вернулся неправильный объект при запросе GET /rest/ships/{id}", actual.equals(expected));

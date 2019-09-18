@@ -28,6 +28,7 @@ import java.util.List;
 
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -106,6 +107,7 @@ public class GetAllTest {
         //before 00:00 01.01.3011
         ResultActions resultActions = mockMvc.perform(get("/rest/ships?shipType=MILITARY&after=32503672800000&before=32850741600000")
                 .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andDo(print())
                 .andExpect(status().isOk());
 
         MvcResult result = resultActions.andReturn();
