@@ -28,6 +28,7 @@ public class EntityMapper {
 
         ShipDto dto = new ShipDto();
         dto.setId(ship.getId());
+        dto.setName(ship.getName());
         dto.setPlanet(ship.getPlanet());
         dto.setShipType(ship.getShipType());
         dto.setProdDate(ship.getProdDate().getTime());
@@ -36,9 +37,5 @@ public class EntityMapper {
         dto.setCrewSize(ship.getCrewSize());
         dto.setRating(ship.getRating());
         return dto;
-    }
-//етод для отлова ошибок
-    private void filterOfEntity(Ship ship){
-
     }
 }

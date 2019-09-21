@@ -1,10 +1,12 @@
 package com.space.controller.utils;
 
 import com.space.model.ShipType;
+import lombok.ToString;
 
 import java.util.Date;
 import java.util.Objects;
 
+@ToString
 public class ShipInfoTest {
     public Long id;
     public String name;

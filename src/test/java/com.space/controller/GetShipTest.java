@@ -69,9 +69,12 @@ public class GetShipTest {
     public void getShipByIdTest() throws Exception {
         ShipInfoTest expected = new TestsHelper().getShipInfosById(14);
 
+
         ResultActions resultActions = mockMvc.perform(get("/rest/ships/14")
                 .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andDo(print())
                 .andExpect(status().isOk());
+
 
         String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
 

@@ -2,21 +2,26 @@ package com.space.controller;
 
 import com.space.dto.EntityMapper;
 import com.space.dto.ShipDto;
+import com.space.exceptions.ShipNotFoundException;
 import com.space.model.Ship;
 import com.space.model.ShipType;
 import com.space.model.ViewShipFilter;
 import com.space.service.ShipService;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestController
-//@EnableJpaRepositories(repositoryBaseClass = ShipServiceImpl.class)
-@RequestMapping("/rest/ships")
 @Slf4j
+@RestController
+@RequestMapping("/rest/ships")
+@Transactional
 public class ShipController {
 
     private ShipService shipService;
@@ -26,62 +31,58 @@ public class ShipController {
         this.shipService = shipService;
     }
 
-//    @GetMapping("/rest/ships")
-//    public List<ShipDto> getAll() {
-//        return null;
-//    }
-
-    @PostMapping
-//    @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
-    public ShipDto createShip(@RequestBody ShipDto shipDto) {
+    @PostMapping(value = "/")
+    public ResponseEntity<ShipDto> createShip(@RequestBody ShipDto shipDto) {
         log.info("Create ship.");
-        Ship ship = EntityMapper.fromShipDto(shipDto);
-        Ship shipCreated = shipService.create(ship);
-        return EntityMapper.toShipDto(shipCreated);
-    }
-
-
-
-    //    //@RequestMapping(produces = APPLICATION_JSON_VALUE, method = RequestMethod.DELETE)
-    //    public EnvelopeView deleteTempFile(@RequestParam String url) {
-    //        log.info("delete temp file request received");
-    //        fileService.deleteTempFile(url);
-    //        return new EnvelopeView(OK);
-    //    }
-    @DeleteMapping(value = "/{id}")
-    public void deleteShip(@PathVariable("id") @RequestParam Long shipId) {
-        log.info("Delete ship by id: {}", shipId);
-        shipService.delete(shipId);
+        try {
+            Ship ship = EntityMapper.fromShipDto(shipDto);
+            Ship shipCreated = shipService.create(ship);
+            return new ResponseEntity<>(EntityMapper.toShipDto(shipCreated), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping(value = "/count")
-    public Long getCount() {
-        return shipService.getCount();
+    public ResponseEntity<Long> getCount() {
+        log.info("Count ship.");
+        try {
+            Long s = shipService.getCount();
+            return new ResponseEntity<>(s, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
-    @GetMapping(value = "/{id}") //, produces = APPLICATION_JSON_VALUE
-    public ShipDto getShip(@PathVariable("id") @RequestParam Long id) {
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<String> deleteShip(@PathVariable("id") @NonNull Object id) {
+        log.info("Delete ship by id: {}", id);
+        try {
+            checkId(id);
+            shipService.delete(Long.parseLong((String) id));
+            return new ResponseEntity<>(HttpStatus.OK); //200
+        } catch (IllegalArgumentException e) {//400
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (ShipNotFoundException | ClassCastException e) { //404
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping(value = "/{id}") //
+    public ResponseEntity<ShipDto> getShip(@PathVariable("id") Object id) {
         log.info("Get ship by id: {}", id);
-        return EntityMapper.toShipDto(shipService.get(id));
+        try {
+            checkId(id);
+            Ship ship = shipService.get(Long.parseLong((String) id));
+            return new ResponseEntity<>(EntityMapper.toShipDto(ship), HttpStatus.OK); //EntityMapper.toShipDto(shipService.get(id));
+        } catch (IllegalArgumentException ignored) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);//400
+        } catch (ShipNotFoundException | ClassCastException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); //404
+        }
     }
-
-    //преобразование даты в наш тип данных
-    //(@RequestParam("from") @DateTimeFormat(pattern="yyyy-MM-dd") Date fromDate)
-
-    //@RequestMapping (value = "/submit/id/{id}", method = RequestMethod.GET,
-    // produces="text/xml")
-    //public String showLoginWindow(@PathVariable("id") String id,
-    //                              @RequestParam(value = "logout") Optional<String> logout,
-    //                              @RequestParam("name") Optional<String> username,
-    //                              @RequestParam("password") Optional<String> password,
-    //                              @ModelAttribute("submitModel") SubmitModel model,
-    //                              BindingResult errors) throws LoginException {...}
-
-//    @RequestParam(value = "pageNo", required = false) Integer pageNo, //Optional<String>
 
     @GetMapping()
-    @ResponseBody
     public List<ShipDto> getAllShips(
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "planet", required = false) String planet,
@@ -109,13 +110,23 @@ public class ShipController {
                 .collect(Collectors.toList());
     }
 
-
-    @PutMapping
-//    @ResponseStatus(HttpStatus.OK)
-    public void updateShip(@RequestBody ShipDto shipDto) {
+    @PutMapping(value = "/{id}")
+    public void updateShip(@RequestBody ShipDto shipDto, @PathVariable("id") Long id) {
         log.info("Update ship");
         Ship ship = EntityMapper.fromShipDto(shipDto);
         shipService.update(ship);
     }
 
+    private void checkId(Object id) {
+        long l;
+        try {
+            l = Long.parseLong((String) id);
+            if (l <= 0) { // меньше или равно 0
+                throw new IllegalArgumentException();
+            }
+        } catch (NumberFormatException e) {
+            //выкидывает при нул и любом НЕ лонге(дабл и прочие не числ.форматы)
+            throw new IllegalArgumentException();
+        }
+    }
 }

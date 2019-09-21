@@ -17,4 +17,6 @@ public interface ShipService {
     Ship get(Long id);
 
     Ship update(Ship ship);
+
+    boolean isExist(Long id);
 }
