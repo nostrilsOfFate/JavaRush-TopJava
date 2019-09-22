@@ -1,5 +1,6 @@
 package com.space.service;
 
+import com.space.dto.ShipDto;
 import com.space.exceptions.ShipNotFoundException;
 import com.space.model.Ship;
 import com.space.model.ViewShipFilter;
@@ -10,7 +11,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.space.dto.EntityMapper.toShipDto;
+import static com.space.util.ShipHelper.countRating;
+import static com.space.util.ShipHelper.updateFields;
 
 @Service("shipService")
 public class ShipServiceImpl implements ShipService {
@@ -47,10 +51,6 @@ public class ShipServiceImpl implements ShipService {
     public Long getCount(ViewShipFilter filter) {
         List<Ship> ships = shipRepository.findAll();
         List<Ship> ships1 = ShipHelper.getFilteredShipList(filter, ships);
-//                .stream()
-//                .filter(s -> !s.getIsUsed())
-//                .collect(Collectors.toList());
-
         return (long) ships1.size();
     }
 
@@ -62,17 +62,16 @@ public class ShipServiceImpl implements ShipService {
     }
 
     @Override
-    public Ship update(Ship ship) throws ShipNotFoundException {
-        if (isExist(ship.getId())) {
-            return shipRepository.save(ship);
-        } else
-            throw new ShipNotFoundException();
+    public Ship update(ShipDto dto) throws ShipNotFoundException, IllegalArgumentException {
+
+        Ship ship = get(dto.getId());
+        Ship updatedShip = updateFields(dto, ship);
+        updatedShip.setRating(countRating(toShipDto(updatedShip)));
+        return shipRepository.save(updatedShip);
     }
 
     @Override
     public boolean isExist(Long id) {
         return shipRepository.existsById(id);
     }
-
-
 }

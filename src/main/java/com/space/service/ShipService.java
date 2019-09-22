@@ -1,5 +1,6 @@
 package com.space.service;
 
+import com.space.dto.ShipDto;
 import com.space.model.Ship;
 import com.space.model.ViewShipFilter;
 
@@ -16,7 +17,7 @@ public interface ShipService {
 
     Ship get(Long id);
 
-    Ship update(Ship ship);
+    Ship update(ShipDto dto);
 
     boolean isExist(Long id);
 }
