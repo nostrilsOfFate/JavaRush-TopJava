@@ -1,7 +1,6 @@
 package com.space.model;
 
 import com.space.controller.ShipOrder;
-import com.space.model.ShipType;
 import lombok.*;
 
 @Getter
