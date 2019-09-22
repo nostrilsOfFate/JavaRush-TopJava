@@ -12,7 +12,7 @@ public interface ShipService {
 
     List<Ship> getAll(ViewShipFilter filter);
 
-    Long getCount();
+    Long getCount(ViewShipFilter filter);
 
     Ship get(Long id);
 

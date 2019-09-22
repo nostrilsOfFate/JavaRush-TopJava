@@ -141,7 +141,7 @@ public class GetCountTest {
         int actual = Integer.parseInt(contentAsString);
         int expected = testsHelper.getShipInfosByPlanet("us", testsHelper.getAllShips()).size();
 
-        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships/count с параметром planet.", actual == expected);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships/count с параметром planet." + "\n"+ actual+"\n"+expected, actual == expected);
     }
 
     //test7
@@ -178,7 +178,7 @@ public class GetCountTest {
                         testsHelper.getShipInfosByMaxSpeed(0.6,
                                 testsHelper.getAllShips()))).size();
 
-        assertTrue("Во звращается не правильный результат при запросе GET /rest/ships/count с параметрами isUsed, minSpeed и maxSpeed.", actual == expected);
+        assertTrue("Возвращается не правильный результат при запросе GET /rest/ships/count с параметрами isUsed, minSpeed и maxSpeed." + "\n" +actual + "\n" + expected , actual == expected);
     }
 
     @Autowired

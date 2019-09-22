@@ -1,221 +1,381 @@
 package com.space.util;
 
 import com.space.controller.ShipOrder;
+import com.space.dto.ShipDto;
 import com.space.model.Ship;
+import com.space.model.ShipType;
 import com.space.model.ViewShipFilter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class ShipHelper {
     private ShipHelper() {
     }
 
-    public static Double countRating(Ship ship) {
+    public static Double countRating(ShipDto ship) {
         int thisYear = 3019;
-        int yearOfBorn = ship.getProdDate().getYear();
-        double a = (ship.getUsed()) ? 0.5 : 1;
-        Double rating = (80 * ship.getSpeed() * a) / (thisYear - yearOfBorn + 1);
-        Double roundOff = Math.round(rating * 100.0) / 100.0;
-        return roundOff;
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(new Date(ship.getProdDate()));
+        int prodDateYear = calendar.get(Calendar.YEAR);
+        double k = (ship.getIsUsed()) ? 0.5 : 1;
+        double rating = (80 * ship.getSpeed() * k) / (thisYear - prodDateYear + 1);
+        return (Math.round(rating * 100) / 100.00);
     }
 
-    public static List<Ship> getList(ViewShipFilter filter, List<Ship> ships) {
+    public static List<Ship> getFilteredShipList(ViewShipFilter filter, List<Ship> ships) {
         // есть ли ограничение по имени
         if (filter.getName() != null) {
-            for (int i = ships.size() - 1; i >= 1; i--) {//для каждого элемента списка
-                if (ships.get(i).getName().contains(filter.getName())) {
-                } //если совпаадет пропускай
-                else { //иначе удаляй
-                    ships.remove(i);
-                }
+            Iterator iterator = ships.iterator();
+            while (iterator.hasNext()) {
+                Ship ship = (Ship) iterator.next();
+                if (ship.getName().toLowerCase().contains(filter.getName().toLowerCase())) {
+                } else
+                    iterator.remove();
             }
         }
 
         // есть ли ограничение по планете
         if (filter.getPlanet() != null) {
-            for (int i = ships.size() - 1; i >= 1; i--) {
-                if (ships.get(i).getPlanet().contains(filter.getPlanet())) {
-                } else {
-                    ships.remove(i);
-                }
+            Iterator iterator = ships.iterator();
+            while (iterator.hasNext()) {
+                Ship ship = (Ship) iterator.next();
+                if (ship.getPlanet().toLowerCase().contains(filter.getPlanet().toLowerCase())) {
+                } else iterator.remove();
             }
         }
 
         // есть ли ограничение по типу корабля
         if (filter.getShipType() != null) {//        private ShipType shipType;
-            if (filter.getShipType().equals("TRANSPORT")) {
-                for (int i = ships.size() - 1; i >= 1; i--) {
-                    if (ships.get(i).getShipType().equals(filter.getShipType())) {
-                    } else {
-                        ships.remove(i);
-                    }
+            if (filter.getShipType().equals(ShipType.TRANSPORT)) {
+                Iterator iterator = ships.iterator();
+                while (iterator.hasNext()) {
+                    Ship ship = (Ship) iterator.next();
+                    if (ship.getShipType().equals(filter.getShipType())) {
+                    } else iterator.remove();
                 }
-            } else if (filter.getShipType().equals("MILITARY")) {
-                for (int i = ships.size() - 1; i >= 1; i--) {
-                    if (ships.get(i).getShipType().equals(filter.getShipType())) {
-                    } else {
-                        ships.remove(i);
-                    }
+            } else if (filter.getShipType().equals(ShipType.MILITARY)) {
+                Iterator iterator = ships.iterator();
+                while (iterator.hasNext()) {
+                    Ship ship = (Ship) iterator.next();
+                    if (ship.getShipType().equals(filter.getShipType())) {
+                    } else iterator.remove();
                 }
-            } else if (filter.getShipType().equals("MERCHANT")) {
-                for (int i = ships.size() - 1; i >= 1; i--) {
-                    if (ships.get(i).getShipType().equals(filter.getShipType())) {
-                    } else {
-                        ships.remove(i);
-                    }
+            } else if (filter.getShipType().equals(ShipType.MERCHANT)) {
+                Iterator iterator = ships.iterator();
+                while (iterator.hasNext()) {
+                    Ship ship = (Ship) iterator.next();
+                    if (ship.getShipType().equals(filter.getShipType())) {
+                    } else iterator.remove();
                 }
             }
         }
 
         // есть ли ограничение по времени после
         if (filter.getAfter() != null) {
-            for (int i = ships.size() - 1; i >= 1; i--) {
-                if (ships.get(i).getProdDate().getTime() >= filter.getAfter()) {
-                    ships.remove(i);
+            Iterator iterator = ships.iterator();
+            while (iterator.hasNext()) {
+                Ship ship = (Ship) iterator.next();
+                if (ship.getProdDate().getTime() < filter.getAfter()) {
+                    iterator.remove();
                 }
             }
         }
 
         // есть ли ограничение по времени до
         if (filter.getBefore() != null) {
-            for (int i = ships.size() - 1; i >= 1; i--) {
-                if (ships.get(i).getProdDate().getTime() <= filter.getBefore()) {
-                    ships.remove(i);
+            Iterator iterator = ships.iterator();
+            while (iterator.hasNext()) {
+                Ship ship = (Ship) iterator.next();
+                if (ship.getProdDate().getTime() > filter.getBefore()) {
+                    iterator.remove();
                 }
             }
         }
+//        if (filter.getIsUsed()==null) {
+//
+//        }
+        if (filter.getIsUsed() != null) {
 
-        // есть ли ограничение по использованию
-        if (filter.getIsUsed() != null && filter.getIsUsed()) { // если тру
-            for (int i = ships.size() - 1; i >= 1; i--) {
-                if (!ships.get(i).getUsed()) {
-                    ships.remove(i);
-                } //даляем то что тру
-            }
-        }
-        if (filter.getIsUsed() != null && !filter.getIsUsed()) { // если фолс
-            for (int i = ships.size() - 1; i >= 1; i--) {
-                if (ships.get(i).getUsed()) {// удаляем то что фолс
-                    ships.remove(i);
-                }
-            }
-        }
-
-        // есть ли ограничение по мин скорости
-        if (filter.getMinSpeed() != null) {
-            for (int i = ships.size() - 1; i >= 1; i--) {
-                if (ships.get(i).getSpeed() <= filter.getMinSpeed()) {
-                    ships.remove(i);
-                }
-            }
-        }
-        // есть ли ограничение по мах скорости
-        if (filter.getMinSpeed() != null) {
-            for (int i = ships.size() - 1; i >= 1; i--) {
-                if (ships.get(i).getSpeed() >= filter.getMaxSpeed()) {
-                    ships.remove(i);
-                }
-            }
-        }
-        // есть ли ограничение по мин команде
-        if (filter.getMinCrewSize() != null) {
-            for (int i = ships.size() - 1; i >= 1; i--) {
-                if (ships.get(i).getCrewSize() <= filter.getMinCrewSize()) {
-                    ships.remove(i);
-                }
-            }
-        }
-        // есть ли ограничение по мах команде
-        if (filter.getMaxCrewSize() != null) {
-            for (int i = ships.size() - 1; i >= 1; i--) {
-                if (ships.get(i).getCrewSize() >= filter.getMaxCrewSize()) {
-                    ships.remove(i);
-                }
-            }
-        }
-        // есть ли ограничение по мин рейтингу
-        if (filter.getMinRating() != null) {
-            for (int i = ships.size() - 1; i >= 1; i--) {
-                if (ships.get(i).getRating() <= filter.getMinRating()) {
-                    ships.remove(i);
-                }
-            }
-        }
-        // есть ли ограничение по мах рейтингу
-        if (filter.getMaxRating() != null) {
-            for (int i = ships.size() - 1; i >= 1; i--) {
-                if (ships.get(i).getRating() >= filter.getMaxRating()) {
-                    ships.remove(i);
-                }
-            }
-        }
-
-        if (filter.getOrder() != null) {
-            sortShip(ships, filter);
-        }
-
-        //int skip = pageNumber * pageSize;
-        //        List<ShipInfoTest> result = new ArrayList<>();
-        //        for (int i = skip; i < Math.min(skip + pageSize, ships.size()); i++) {
-        //            result.add(ships.get(i));
-        //        }
-        //        return result;
-
-        if (filter.getPageNumber() != null) {
-            if (filter.getPageSize() != null) {
-                List<Ship> result = new ArrayList<>();
-                int skip = filter.getPageNumber() * filter.getPageSize();//обьем прошедний до данной страницы вкл
-                for (int i = skip; i < Math.min(skip + filter.getPageSize(), ships.size()); i++) {//перечисление страниц
-                    result.add(ships.get(i));
-                }
-            } else {
-                int pageSize = 3;
-                List<Ship> result = new ArrayList<>();
-                int skip = filter.getPageNumber() * filter.getPageSize();//обьем прошедний до данной страницы вкл
-                for (int i = skip; i < Math.min(skip + filter.getPageSize(), ships.size()); i++) {//перечисление страниц
-                    result.add(ships.get(i));
+            //ВОТ ТУТ РОБИЛОО
+            if (filter.getIsUsed()) { // get all isUsed = true
+                Iterator iterator = ships.iterator();
+                while (iterator.hasNext()) {
+                    Ship ship = (Ship) iterator.next();
+                    if (!ship.getIsUsed()) {
+                        iterator.remove();
+                    }
                 }
             }
 
-        } else {
-            int pageNumber = 0;
-            if (filter.getPageSize() != null) {
+//            if (filter.getIsUsed() == true) {
+//                Iterator iterator = ships.iterator();
+//                while (iterator.hasNext()) {
+//                    Ship ship = (Ship) iterator.next();
+//                    if (ship.getIsUsed() == false) {
+//                        iterator.remove();
+//                    }
+//                }
+//            }
+//            else if ((filter.getIsUsed() == false)) {
+//                        Iterator iterator = ships.iterator();
+//                        while (iterator.hasNext()) {
+//                            Ship ship = (Ship) iterator.next();
+//                            if (ship.getIsUsed() == true) {
+//                                iterator.remove();
+//                            }
+//                        }}
+//            else if ((filter.getIsUsed() == null) || (filter.getIsUsed() == false)) {
+//                Iterator iterator = ships.iterator();
+//                while (iterator.hasNext()) {
+//                    Ship ship = (Ship) iterator.next();
+//                    if (ship.getIsUsed() == true) {
+//                        iterator.remove();
+//                    }
+//                }}
 
-            } else {
-                int pageSize = 3;
+//            else
+//            {
+//                Iterator iterator = ships.iterator();
+//                while (iterator.hasNext()) {
+//                    Ship ship = (Ship) iterator.next();
+//                    if (ship.getIsUsed()) {
+//                        iterator.remove();
+//                    }
+//                }
+//            }
 
-            }
+//            if (!filter.getIsUsed()) { // get all isUsed = false
+//                Iterator iterator = ships.iterator();
+//                while (iterator.hasNext()) {
+//                    Ship ship = (Ship) iterator.next();
+//                    if (ship.getIsUsed()) {
+//                        iterator.remove();
+//                    }
+//                }
+                        }
 
-        }
-        return ships;
-    }
+                        // есть ли ограничение по мин скорости
+                        if (filter.getMinSpeed() != null) {
+                            Iterator iterator = ships.iterator();
+                            while (iterator.hasNext()) {
+                                Ship ship = (Ship) iterator.next();
+                                if (ship.getSpeed() < filter.getMinSpeed()) {
+                                    iterator.remove();
+                                }
+                            }
+                        }
 
-    private static List<Ship> sortShip(List<Ship> ships, ViewShipFilter filter) {
-        if (filter.getOrder() == ShipOrder.ID) {
-            ships.sort((o1, o2) -> (int) (o1.getId() - o2.getId()));
-        } else if (filter.getOrder() == ShipOrder.DATE) {
-            ships.sort((o1, o2) -> (int) (o1.getProdDate().getTime() - o2.getProdDate().getTime()));
-        } else if (filter.getOrder() == ShipOrder.SPEED) {
-            ships.sort((o1, o2) -> {
-                if (o1.getSpeed() > o2.getSpeed())
-                    return 1;
-                else if (o1.getSpeed().equals(o2.getSpeed()))
-                    return 0;
-                else
-                    return -1;
-            });
-        } else if (filter.getOrder() == ShipOrder.RATING) {
-            ships.sort((o1, o2) -> {
-                if (o1.getRating() > o2.getRating())
-                    return 1;
-                else if (o1.getRating().equals(o2.getRating()))
-                    return 0;
-                else
-                    return -1;
-            });
-        }
-        return ships;
-    }
+                        // есть ли ограничение по мах скорости
+                        if (filter.getMaxSpeed() != null) {
+                            Iterator iterator = ships.iterator();
+                            while (iterator.hasNext()) {
+                                Ship ship = (Ship) iterator.next();
+                                if (ship.getSpeed() > filter.getMaxSpeed()) {
+                                    iterator.remove();
+                                }
+                            }
+                        }
 
-}
+                        // есть ли ограничение по мин команде
+                        if (filter.getMinCrewSize() != null) {
+                            Iterator iterator = ships.iterator();
+                            while (iterator.hasNext()) {
+                                Ship ship = (Ship) iterator.next();
+                                if (ship.getCrewSize() < filter.getMinCrewSize()) {
+                                    iterator.remove();
+                                }
+                            }
+                        }
+
+                        // есть ли ограничение по мах команде
+                        if (filter.getMaxCrewSize() != null) {
+                            Iterator iterator = ships.iterator();
+                            while (iterator.hasNext()) {
+                                Ship ship = (Ship) iterator.next();
+                                if (ship.getCrewSize() > filter.getMaxCrewSize()) {
+                                    iterator.remove();
+                                }
+                            }
+                        }
+
+                        // есть ли ограничение по мин рейтингу
+                        if (filter.getMinRating() != null) {
+                            Iterator iterator = ships.iterator();
+                            while (iterator.hasNext()) {
+                                Ship ship = (Ship) iterator.next();
+                                if (ship.getRating() < filter.getMinRating()) {
+                                    iterator.remove();
+                                }
+                            }
+                        }
+                        // есть ли ограничение по мах рейтингу
+                        if (filter.getMaxRating() != null) {
+                            Iterator iterator = ships.iterator();
+                            while (iterator.hasNext()) {
+                                Ship ship = (Ship) iterator.next();
+                                if (ship.getRating() > filter.getMaxRating()) {
+                                    iterator.remove();
+                                }
+                            }
+                        }
+
+                        if (filter.getOrder() != null) {
+                            sortShip(ships, filter);
+                        }
+
+//        List<Ship> result = new ArrayList<>();
+//        if (filter.getPageNumber() != null) {
+//            if (filter.getPageSize() != null) {
+//                int skip = filter.getPageNumber() * filter.getPageSize();//обьем прошедний до данной страницы вкл
+//                for (int i = skip; i < Math.min(skip + filter.getPageSize(),
+//                        ships.size()); i++) {//перечисление страниц
+//                    result.add(ships.get(i));
+//                }
+//            } else {
+//                int pageSize = 3;
+//                int skip = filter.getPageNumber() * pageSize;//обьем прошедний до данной страницы вкл
+//                for (int i = skip; i < Math.min(skip + pageSize,
+//                        ships.size()); i++) {//перечисление страниц
+//                    result.add(ships.get(i));
+//                }
+//            }
+//
+//        } else {
+//            int pageNumber = 0;
+//            if (filter.getPageSize() != null) {
+//                int skip = pageNumber * filter.getPageSize();//обьем прошедний до данной страницы вкл
+//                for (int i = skip; i < Math.min(skip + filter.getPageSize(),
+//                        ships.size()); i++) {//перечисление страниц
+//                    result.add(ships.get(i));
+//                }
+//            } else {
+//                int pageSize = 3;
+//                int skip = pageNumber * pageSize;//обьем прошедний до данной страницы вкл
+//                for (int i = skip; i < Math.min(skip + pageSize,
+//                        ships.size()); i++) {//перечисление страниц
+//                    result.add(ships.get(i));
+//                }
+//            }
+//        }
+//        return result;
+                        return ships;
+                    }
+
+                    public static List<Ship> getResultFilteredShipList (ViewShipFilter filter, List < Ship > ships){
+                        List<Ship> result = new ArrayList<>();
+                        if (filter.getPageNumber() != null) {
+                            if (filter.getPageSize() != null) {
+                                int skip = filter.getPageNumber() * filter.getPageSize();//обьем прошедний до данной страницы вкл
+                                for (int i = skip; i < Math.min(skip + filter.getPageSize(),
+                                        ships.size()); i++) {//перечисление страниц
+                                    result.add(ships.get(i));
+                                }
+                            } else {
+                                int pageSize = 3;
+                                int skip = filter.getPageNumber() * pageSize;//обьем прошедний до данной страницы вкл
+                                for (int i = skip; i < Math.min(skip + pageSize,
+                                        ships.size()); i++) {//перечисление страниц
+                                    result.add(ships.get(i));
+                                }
+                            }
+
+                        } else {
+                            int pageNumber = 0;
+                            if (filter.getPageSize() != null) {
+                                int skip = pageNumber * filter.getPageSize();//обьем прошедний до данной страницы вкл
+                                for (int i = skip; i < Math.min(skip + filter.getPageSize(),
+                                        ships.size()); i++) {//перечисление страниц
+                                    result.add(ships.get(i));
+                                }
+                            } else {
+                                int pageSize = 3;
+                                int skip = pageNumber * pageSize;//обьем прошедний до данной страницы вкл
+                                for (int i = skip; i < Math.min(skip + pageSize,
+                                        ships.size()); i++) {//перечисление страниц
+                                    result.add(ships.get(i));
+                                }
+                            }
+                        }
+                        return result;
+                    }
+
+
+                    private static List<Ship> sortShip (List < Ship > ships, ViewShipFilter filter){
+                        if (filter.getOrder() == ShipOrder.ID) {
+                            ships.sort((o1, o2) -> (int) (o1.getId() - o2.getId()));
+                        } else if (filter.getOrder() == ShipOrder.DATE) {
+                            ships.sort((o1, o2) -> (int) (o1.getProdDate().getTime() - o2.getProdDate().getTime()));
+                        } else if (filter.getOrder() == ShipOrder.SPEED) {
+                            ships.sort((o1, o2) -> {
+                                if (o1.getSpeed() > o2.getSpeed())
+                                    return 1;
+                                else if (o1.getSpeed().equals(o2.getSpeed()))
+                                    return 0;
+                                else
+                                    return -1;
+                            });
+                        } else if (filter.getOrder() == ShipOrder.RATING) {
+                            ships.sort((o1, o2) -> {
+                                if (o1.getRating() > o2.getRating())
+                                    return 1;
+                                else if (o1.getRating().equals(o2.getRating()))
+                                    return 0;
+                                else
+                                    return -1;
+                            });
+                        }
+                        return ships;
+                    }
+
+                    public static void validateId (Object id) throws IllegalArgumentException {
+//        long l;
+//        try {
+////            l = Long.parseLong((String) id);
+//
+//        } catch (NumberFormatException e) {
+//            //выкидывает при нул и любом НЕ лонге(дабл и прочие не числ.форматы)
+//            throw new IllegalArgumentException();
+//        }
+                        long shipId;
+                        try {
+                            shipId = Long.parseLong((String) id);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException();
+                        }
+                        if (shipId <= 0) { // меньше или равно 0
+                            throw new IllegalArgumentException();
+                        }
+                    }
+
+                    public static void validateShip (ShipDto dto) throws IllegalArgumentException, ParseException {
+                        // ограничение, т 2800 до текущего 3019
+                        Date min = new SimpleDateFormat("yyyy-MM-dd").parse("2800-01-01");
+                        Date max = new SimpleDateFormat("yyyy-MM-dd").parse("3019-12-31");
+                        Date prodDate = new Date(dto.getProdDate());
+
+                        if ((prodDate.getTime() < min.getTime()) || (prodDate.getTime() > max.getTime())) {
+                            throw new IllegalArgumentException("Invalid time range of production date of ship (2800-3019)");
+                        }
+
+                        if (dto.getName().isEmpty())
+                            throw new IllegalArgumentException("Empty name");
+
+                        if (dto.getPlanet().length() > 50)
+                            throw new IllegalArgumentException("Planet length is longer than 50");
+
+                        if ((dto.getCrewSize() < 1) || (dto.getCrewSize() > 9999)) {
+                            throw new IllegalArgumentException("Invalid CrewSize of ship (not 1..9999)");
+                        }
+
+                        if (dto.getSpeed() < 0.01 || dto.getSpeed() > 0.99) {
+                            throw new IllegalArgumentException("Invalid speed range of ship (0.01-0.99)");
+
+                        }
+
+                    }
+
+                }
+

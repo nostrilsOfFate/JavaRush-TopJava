@@ -9,7 +9,6 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-//@RequiredArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResultView {
     @NonNull

@@ -135,7 +135,9 @@ public class CreateShipTest {
 
         String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
         ShipInfoTest actual = mapper.readValue(contentAsString, ShipInfoTest.class);
-        assertTrue("Возвращается не правильный результат при запросе создания корабля с параметром isUsed."+contentAsString + "   "+actual.toString(), actual.equals(expected));
+        assertTrue("Возвращается не правильный результат при запросе создания корабля с параметром isUsed.\n"
+                + contentAsString + "   \n" +
+                " \n" + "actual - " + actual.toString() + " \n" + "expected - " + expected.toString(), actual.equals(expected));
     }
 
     //test9

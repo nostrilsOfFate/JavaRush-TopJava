@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
         ex.printStackTrace();
         return new ResultView(HttpStatus.BAD_REQUEST, "Bad Request E400");
     }
-    @ExceptionHandler({NumberFormatException.class, MysqlDataTruncation.class})
+    @ExceptionHandler({NumberFormatException.class})
     @ResponseBody
     @ResponseStatus(code = HttpStatus.BAD_REQUEST) //400 ошибка
     public ResultView handleAllException(NumberFormatException ex) {

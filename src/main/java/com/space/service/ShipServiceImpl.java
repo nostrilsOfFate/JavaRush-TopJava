@@ -8,7 +8,9 @@ import com.space.util.ShipHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service("shipService")
 public class ShipServiceImpl implements ShipService {
@@ -35,24 +37,36 @@ public class ShipServiceImpl implements ShipService {
     @Override
     public List<Ship> getAll(ViewShipFilter filter) {
         List<Ship> ships = shipRepository.findAll();
-        return ShipHelper.getList(filter, ships);
+        if (ships.size() != 0) {
+            return ShipHelper.getResultFilteredShipList(filter, ShipHelper.getFilteredShipList(filter, ships));
+        } else
+            return Collections.emptyList();
     }
 
     @Override
-    public Long getCount() {
-        return shipRepository.count();
+    public Long getCount(ViewShipFilter filter) {
+        List<Ship> ships = shipRepository.findAll();
+        List<Ship> ships1 = ShipHelper.getFilteredShipList(filter, ships);
+//                .stream()
+//                .filter(s -> !s.getIsUsed())
+//                .collect(Collectors.toList());
+
+        return (long) ships1.size();
     }
 
     @Override
     public Ship get(Long id) throws ShipNotFoundException {
-        if (isExist(id)){
+        if (isExist(id)) {
             return shipRepository.findShipById(id);
         } else throw new ShipNotFoundException();
     }
 
     @Override
-    public Ship update(Ship ship) {
-        return shipRepository.save(ship);
+    public Ship update(Ship ship) throws ShipNotFoundException {
+        if (isExist(ship.getId())) {
+            return shipRepository.save(ship);
+        } else
+            throw new ShipNotFoundException();
     }
 
     @Override
